@@ -12,8 +12,9 @@ class Pos(object):
 
 class Snake(object):
     def __init__(self):
-        self.BGCOLOR = 'GRAY'
-        self.COLOR = 'BLACK'
+        self.BGCOLOR = 'BLACK'
+        self.COLOR = 'WHITE'
+        self.TEXTCOLOR = 'ORANGE'
         self.NODELEN = 20
         self.MAPWIDTH = 300
         self.MAPHEIGHT = 300
@@ -23,7 +24,7 @@ class Snake(object):
         root = Tk()
         root.maxsize(self.MAPWIDTH, self.MAPHEIGHT)
         root.minsize(self.MAPWIDTH, self.MAPHEIGHT)
-        self.cv = Canvas(root, width=self.MAPWIDTH, height=self.MAPHEIGHT, background=self.BGCOLOR)
+        self.cv = Canvas(root, width=self.MAPWIDTH, height=self.MAPHEIGHT, background=self.BGCOLOR, state=DISABLED)
         self.cv.bind('<Key>', self.move)
         self.cv.focus_set()
         self.cv.pack()
@@ -60,7 +61,7 @@ class Snake(object):
         return head.x > 0 and head.y > 0 and head.x < self.MAPWIDTH and head.y < self.MAPHEIGHT
 
     def make_food(self):
-        rand = random.randint(0, len(list(self.mapgrid)))
+        rand = random.randint(0, len(list(self.mapgrid))-1)
         self.foodpos.x, self.foodpos.y = list(self.mapgrid)[rand]
         self.cv.create_oval(self.foodpos.x, self.foodpos.y,
                     self.foodpos.x+self.NODELEN-1, self.foodpos.y+self.NODELEN-1,fill=self.COLOR)
@@ -93,22 +94,22 @@ class Snake(object):
             self.mapgrid.add((tail.x,tail.y))
             self.cv.create_rectangle(tail.x, tail.y, tail.x+(self.NODELEN-1), tail.y+(self.NODELEN-1), fill=self.BGCOLOR, outline=self.BGCOLOR)
         self.cv.create_rectangle(head.x, head.y, head.x+(self.NODELEN-1), head.y+(self.NODELEN-1), fill=self.COLOR, outline=self.BGCOLOR)
-        self.cv.after(200)
         self.cv.update()
-    
+
     def play(self):
         while self.isalive():
             self.snake_move(self.direct)
             self.show()
+            self.cv.after(500)
         self.gameover()
 
     def gameover(self):
         self.cv.unbind('<Key>')
         self.cv.bind('<Key-space>', self.restart)
         self.cv.create_text(self.MAPWIDTH//2,self.MAPWIDTH//2-self.NODELEN,text='YOU LOSE!',
-                font='time 22 bold', tags='text_lose')
+                font='time 22 bold',fill=self.TEXTCOLOR, tags='text_lose')
         self.cv.create_text(self.MAPWIDTH//2,self.MAPWIDTH//2+self.NODELEN,text='Press SPACE to restart',
-                font='time 14 bold', tags='text_restart')
+                font='time 14 bold', fill=self.TEXTCOLOR, tags='text_restart')
         print('lose')
         self.cv.update()
         
