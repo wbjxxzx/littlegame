@@ -12,8 +12,8 @@ class Pos(object):
 
 class Snake(object):
     def __init__(self):
-        self.BGCOLOR = 'black'
-        self.COLOR = 'white'
+        self.BGCOLOR = 'GRAY'
+        self.COLOR = 'BLACK'
         self.NODELEN = 20
         self.MAPWIDTH = 300
         self.MAPHEIGHT = 300
@@ -46,7 +46,7 @@ class Snake(object):
         self.direct = 68
         self.foodpos = Pos(-1,-1)
         for pos in self.body:
-            self.cv.create_rectangle(pos.x, pos.y, pos.x+(self.NODELEN-1), pos.y+(self.NODELEN-1), fill=self.COLOR)
+            self.cv.create_rectangle(pos.x, pos.y, pos.x+(self.NODELEN-1), pos.y+(self.NODELEN-1), fill=self.COLOR, outline=self.BGCOLOR)
         self.make_food()
         self.play()
 
@@ -63,7 +63,7 @@ class Snake(object):
         rand = random.randint(0, len(list(self.mapgrid)))
         self.foodpos.x, self.foodpos.y = list(self.mapgrid)[rand]
         self.cv.create_oval(self.foodpos.x, self.foodpos.y,
-                    self.foodpos.x+self.NODELEN, self.foodpos.y+self.NODELEN,fill=self.COLOR)
+                    self.foodpos.x+self.NODELEN-1, self.foodpos.y+self.NODELEN-1,fill=self.COLOR)
 
     def move(self, event):
         # move in a reverse way is forbidden
@@ -91,8 +91,8 @@ class Snake(object):
             self.make_food()
         else:
             self.mapgrid.add((tail.x,tail.y))
-            self.cv.create_rectangle(tail.x, tail.y, tail.x+(self.NODELEN-1), tail.y+(self.NODELEN-1), fill=self.BGCOLOR)
-        self.cv.create_rectangle(head.x, head.y, head.x+(self.NODELEN-1), head.y+(self.NODELEN-1), fill=self.COLOR)
+            self.cv.create_rectangle(tail.x, tail.y, tail.x+(self.NODELEN-1), tail.y+(self.NODELEN-1), fill=self.BGCOLOR, outline=self.BGCOLOR)
+        self.cv.create_rectangle(head.x, head.y, head.x+(self.NODELEN-1), head.y+(self.NODELEN-1), fill=self.COLOR, outline=self.BGCOLOR)
         self.cv.after(200)
         self.cv.update()
     
@@ -104,9 +104,21 @@ class Snake(object):
 
     def gameover(self):
         self.cv.unbind('<Key>')
-        for pos in map(lambda x:Pos(x[0],x[1]), self.mapgrid):
-            self.cv.create_rectangle(pos.x, pos.y, pos.x+(self.NODELEN-1), pos.y+(self.NODELEN-1), fill=self.BGCOLOR)
-        self.cv.create_text(self.NODELEN,self.NODELEN,text='YOU LOSE!')
+        self.cv.bind('<Key-space>', self.restart)
+        self.cv.create_text(self.MAPWIDTH//2,self.MAPWIDTH//2-self.NODELEN,text='YOU LOSE!',
+                font='time 22 bold', tags='text_lose')
+        self.cv.create_text(self.MAPWIDTH//2,self.MAPWIDTH//2+self.NODELEN,text='Press SPACE to restart',
+                font='time 14 bold', tags='text_restart')
         print('lose')
         self.cv.update()
+        
+    def restart(self, event):
+        for pos in self.body:
+            self.cv.create_rectangle(pos.x, pos.y, pos.x+(self.NODELEN-1), pos.y+(self.NODELEN-1), fill=self.BGCOLOR, outline=self.BGCOLOR)
+        self.cv.create_oval(self.foodpos.x, self.foodpos.y,
+                    self.foodpos.x+self.NODELEN, self.foodpos.y+self.NODELEN,fill=self.BGCOLOR, outline=self.BGCOLOR)
+        self.cv.delete('text_lose', 'text_restart')
+        self.cv.bind('<Key>', self.move)
+        self.start()
+
 Snake()
