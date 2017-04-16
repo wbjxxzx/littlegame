@@ -100,7 +100,7 @@ class Snake(object):
         while self.isalive():
             self.snake_move(self.direct)
             self.show()
-            self.cv.after(500)
+            self.cv.after(200)
         self.gameover()
 
     def gameover(self):
